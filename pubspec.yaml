@@ -27,6 +27,7 @@ dependencies:
 
   # Launcher
   url_launcher: ^6.2.0
+  location: ^8.0.1
 
 dev_dependencies:
   flutter_test:
