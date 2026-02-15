@@ -30,8 +30,8 @@ android {
     buildTypes {
         release {
             // ✅ OPTIMISATION : Réduction de la taille de l'APK
-            isMinifyEnabled = true
-            isShrinkResources = true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -45,10 +45,10 @@ android {
     // ✅ SPLIT APK : Créer un APK par architecture (réduit drastiquement la taille)
     splits {
         abi {
-            isEnable = true
+            enable = true
             reset()
             include("armeabi-v7a", "arm64-v8a", "x86_64")
-            isUniversalApk = false
+            universalApk = false
         }
     }
 }
