@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'vehicle_selection_screen.dart';
-import 'map_service.dart'; // <--- IMPORT DU SERVICE GRATUIT
+import 'map_service.dart';
 
 class CourseScreen extends StatefulWidget {
   @override
@@ -15,18 +16,89 @@ class _CourseScreenState extends State<CourseScreen> {
   bool _isSearching = false;
   GoogleMapController? _mapController;
   
-  // Position de départ (Centre Lomé par défaut)
-  final LatLng _startPos = LatLng(6.1375, 1.2125); 
+  // Position de départ (sera récupérée du GPS)
+  LatLng? _startPos;
+  bool _loadingPosition = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      // Vérifier les permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          setState(() {
+            _startPos = LatLng(6.1375, 1.2125); // Fallback Centre Lomé
+            _loadingPosition = false;
+          });
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _startPos = LatLng(6.1375, 1.2125); // Fallback
+          _loadingPosition = false;
+        });
+        return;
+      }
+
+      // Obtenir la vraie position GPS
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        _startPos = LatLng(position.latitude, position.longitude);
+        _loadingPosition = false;
+      });
+
+      // Déplacer la caméra vers la position actuelle
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLng(_startPos!),
+      );
+
+      print("✅ Position GPS récupérée: ${_startPos!.latitude}, ${_startPos!.longitude}");
+    } catch (e) {
+      print("❌ Erreur GPS: $e");
+      setState(() {
+        _startPos = LatLng(6.1375, 1.2125); // Fallback en cas d'erreur
+        _loadingPosition = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Attendre que la position GPS soit chargée
+    if (_loadingPosition || _startPos == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(color: Color(0xFFFF6B6B)),
+              SizedBox(height: 20),
+              Text("Récupération de votre position...", style: TextStyle(color: Colors.grey)),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // FOND CARTE (On garde Google Maps pour l'affichage visuel seulement, c'est gratuit sur mobile)
           GoogleMap(
-            initialCameraPosition: CameraPosition(target: _startPos, zoom: 14.0),
+            initialCameraPosition: CameraPosition(target: _startPos!, zoom: 14.0),
             onMapCreated: (c) => _mapController = c,
             zoomControlsEnabled: false,
             myLocationEnabled: true, 
@@ -94,6 +166,13 @@ class _CourseScreenState extends State<CourseScreen> {
     String query = _destController.text;
     if (query.isEmpty) return;
 
+    if (_startPos == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Impossible d'obtenir votre position"), backgroundColor: Colors.red)
+      );
+      return;
+    }
+
     setState(() => _isSearching = true);
 
     // 1. CHERCHER L'ADRESSE
@@ -107,14 +186,18 @@ class _CourseScreenState extends State<CourseScreen> {
       String name = bestResult['display_name'].split(',')[0]; // On garde juste le nom court
 
       // 2. CALCULER LA DISTANCE
-      double km = await _mapService.getDistanceFromRoute(_startPos, LatLng(lat, lon));
+      double km = await _mapService.getDistanceFromRoute(_startPos!, LatLng(lat, lon));
 
       setState(() => _isSearching = false);
 
-      // 3. ON NAVIGUE !
+      // 3. ON NAVIGUE - AVEC LES VRAIES COORDONNÉES GPS !
       Navigator.push(context, MaterialPageRoute(builder: (_) => VehicleSelectionScreen(
         destinationAddress: name,
-        distanceKm: km, // La distance précise
+        distanceKm: km,
+        originLat: _startPos!.latitude,  // ✅ VRAIE POSITION
+        originLng: _startPos!.longitude, // ✅ VRAIE POSITION
+        destLat: lat,
+        destLng: lon,
       )));
 
     } else {

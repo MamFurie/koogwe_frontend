@@ -97,7 +97,8 @@ class _MapScreenState extends State<MapScreen> {
     );
 
     // Note : RideService doit être implémenté dans ride_service.dart
-   bool success = (await RideService().createRide(
+   bool success = (await 
+   RideService().createRide(
       originLat: _currentPosition!.latitude,
       originLng: _currentPosition!.longitude,
       destLat: _destinationPosition!.latitude,
@@ -106,7 +107,7 @@ class _MapScreenState extends State<MapScreen> {
     )) as bool;
 
     if (mounted) { // Sécurité pour éviter les erreurs si l'écran est fermé pendant l'appel
-      if (success) {
+      if (success == true) {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(

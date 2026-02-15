@@ -3,17 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ride_tracking_screen.dart';
+import 'config.dart';
 
 class RidePreviewScreen extends StatefulWidget {
   final String destination;
   final String vehicleName;
   final double price;
+  final double originLat;
+  final double originLng;
+  final double destLat;
+  final double destLng;
 
   const RidePreviewScreen({
     Key? key, 
     required this.destination, 
     required this.vehicleName, 
-    required this.price
+    required this.price,
+    required this.originLat,
+    required this.originLng,
+    required this.destLat,
+    required this.destLng,
   }) : super(key: key);
 
   @override
@@ -41,16 +50,23 @@ class _RidePreviewScreenState extends State<RidePreviewScreen> {
     print("🟢 Token trouvé : ${token.substring(0, 10)}..."); // On affiche juste le début
 
     // 2. PRÉPARATION DES DONNÉES
-    // ⚠️ ATTENTION : Vérifie bien que cette IP est celle de ton PC (ipconfig)
-    final url = Uri.parse('http://192.168.1.73:3000/rides'); 
+    final url = Uri.parse('$kBaseUrl/rides'); 
     
-    // On s'assure que les chiffres sont bien des chiffres (pas de texte)
+    // Conversion du nom du véhicule en type enum backend
+    String vehicleType = 'MOTO';
+    if (widget.vehicleName.contains('Eco')) {
+      vehicleType = 'ECO';
+    } else if (widget.vehicleName.contains('Confort')) {
+      vehicleType = 'CONFORT';
+    }
+
     final Map<String, dynamic> data = {
-      "originLat": 6.1375,
-      "originLng": 1.2125,
-      "destLat": 6.1750,
-      "destLng": 1.2300,
-      "price": widget.price.toDouble() // Force en nombre à virgule
+      "originLat": widget.originLat,
+      "originLng": widget.originLng,
+      "destLat": widget.destLat,
+      "destLng": widget.destLng,
+      "price": widget.price.toDouble(),
+      "vehicleType": vehicleType,
     };
 
     print("🔵 Envoi des données au serveur : $data");

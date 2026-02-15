@@ -1,5 +1,5 @@
 name: koogwz_mobile
-description: Koogwz - Application de VTC pour le marché togolais
+description: Koogwe - Application de VTC pour le marché togolais
 version: 1.0.0+1
 
 environment:
@@ -33,9 +33,14 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1  # ✅ Pour générer les icônes de l'app
 
 flutter:
   uses-material-design: true
+
+  # ✅ Assets - Logo de l'application
+  assets:
+    - assets/icon/koogwe_logo.png
 
   # Fonts - Télécharge Poppins depuis Google Fonts et place dans assets/fonts/
   # fonts:
@@ -50,3 +55,11 @@ flutter:
   #         weight: 700
   #       - asset: assets/fonts/Poppins-ExtraBold.ttf
   #         weight: 800
+
+# ✅ Configuration pour générer automatiquement les icônes Android
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/koogwe_logo.png"
+  adaptive_icon_background: "#FFFFFF"  # Fond blanc
+  adaptive_icon_foreground: "assets/icon/koogwe_logo.png"

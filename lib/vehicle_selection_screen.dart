@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 import 'ride_preview_screen.dart'; 
 
 class VehicleSelectionScreen extends StatefulWidget {
-  // On reçoit ces 2 infos venant de l'écran précédent (CourseScreen)
   final String destinationAddress;
-  final double distanceKm; 
+  final double distanceKm;
+  final double originLat;
+  final double originLng;
+  final double destLat;
+  final double destLng;
 
   const VehicleSelectionScreen({
     Key? key, 
     required this.destinationAddress,
-    required this.distanceKm, 
+    required this.distanceKm,
+    required this.originLat,
+    required this.originLng,
+    required this.destLat,
+    required this.destLng,
   }) : super(key: key);
 
   @override
@@ -156,8 +163,11 @@ class _VehicleSelectionScreenState extends State<VehicleSelectionScreen> {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => RidePreviewScreen(
                     destination: widget.destinationAddress,
                     vehicleName: selectedCar['name'],
-                    // Important : On convertit le prix "String" en "double" pour le backend
                     price: double.parse(selectedCar['price']),
+                    originLat: widget.originLat,
+                    originLng: widget.originLng,
+                    destLat: widget.destLat,
+                    destLng: widget.destLng,
                   )));
                 },
                 style: ElevatedButton.styleFrom(
