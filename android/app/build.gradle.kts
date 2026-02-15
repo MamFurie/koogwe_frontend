@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -29,26 +28,18 @@ android {
 
     buildTypes {
         release {
-            // ✅ OPTIMISATION : Réduction de la taille de l'APK
-            minifyEnabled = true
-            shrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            
-            // Signing avec debug key (à remplacer en production)
+            // Signing avec debug key
             signingConfig = signingConfigs.getByName("debug")
         }
     }
 
-    // ✅ SPLIT APK : Créer un APK par architecture (réduit drastiquement la taille)
+    // ✅ SPLIT APK par architecture (réduit la taille)
     splits {
         abi {
-            enable = true
+            isEnable = true
             reset()
             include("armeabi-v7a", "arm64-v8a", "x86_64")
-            universalApk = false
+            isUniversalApk = false
         }
     }
 }
