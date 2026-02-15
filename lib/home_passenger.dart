@@ -4,7 +4,7 @@ import 'auth_service.dart';
 import 'config.dart';
 import 'course_screen.dart';
 import 'history_screen.dart';
-import 'wallet_screen.dart';
+// ❌ SUPPRIMÉ : import 'wallet_screen.dart';
 import 'profile_screen.dart';
 import 'ride_service.dart';
 import 'theme/colors.dart';
@@ -63,10 +63,10 @@ class _HomePassengerState extends State<HomePassenger> {
 
   @override
   Widget build(BuildContext context) {
-    // Navigation entre les onglets
-    if (_navIndex == 1) return WalletScreen(onBack: () => setState(() => _navIndex = 0));
-    if (_navIndex == 2) return HistoryScreen(onBack: () => setState(() => _navIndex = 0));
-    if (_navIndex == 3) return ProfileScreen(isDriver: false, onBack: () => setState(() => _navIndex = 0));
+    // Navigation entre les onglets (WALLET SUPPRIMÉ)
+    // ❌ SUPPRIMÉ : if (_navIndex == 1) return WalletScreen(...)
+    if (_navIndex == 1) return HistoryScreen(onBack: () => setState(() => _navIndex = 0));
+    if (_navIndex == 2) return ProfileScreen(isDriver: false, onBack: () => setState(() => _navIndex = 0));
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -89,7 +89,7 @@ class _HomePassengerState extends State<HomePassenger> {
                       Text(userName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                     ]),
                     GestureDetector(
-                      onTap: () => setState(() => _navIndex = 3),
+                      onTap: () => setState(() => _navIndex = 2),
                       child: CircleAvatar(
                         radius: 24,
                         backgroundColor: AppColors.primary.withValues(alpha: 0.15),
@@ -110,14 +110,14 @@ class _HomePassengerState extends State<HomePassenger> {
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)]),
                   child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
                     _buildStat(Icons.directions_car, '${_recentRides.length}', 'Courses', Colors.orange),
-                    _buildStat(Icons.account_balance_wallet, '0 FCFA', 'Dépensé', Colors.teal),
+                    _buildStat(Icons.history, '${_recentRides.length}', 'Historique', Colors.teal),
                     _buildStat(Icons.star, '4.9', 'Note', Colors.amber),
                   ]),
                 ),
 
                 const SizedBox(height: 20),
 
-                // Bouton prendre un course (grand CTA)
+                // Bouton prendre une course (grand CTA)
                 GestureDetector(
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CourseScreen())),
                   child: Container(
@@ -144,6 +144,7 @@ class _HomePassengerState extends State<HomePassenger> {
                 const Text('Services', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 15),
 
+                // ✅ GRILLE 2x2 SANS WALLET
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -156,13 +157,16 @@ class _HomePassengerState extends State<HomePassenger> {
                       Navigator.push(context, MaterialPageRoute(builder: (_) => CourseScreen()));
                     }),
                     _buildServiceCard(context, 'Historique', Icons.history, AppColors.servicePlanifier, () {
-                      setState(() => _navIndex = 2);
-                    }),
-                    _buildServiceCard(context, 'Portefeuille', Icons.account_balance_wallet, AppColors.serviceCovoit, () {
                       setState(() => _navIndex = 1);
                     }),
                     _buildServiceCard(context, 'Profil', Icons.person, AppColors.serviceServices, () {
-                      setState(() => _navIndex = 3);
+                      setState(() => _navIndex = 2);
+                    }),
+                    // ✅ 4ème case : Support ou autre service
+                    _buildServiceCard(context, 'Support', Icons.headset_mic, AppColors.serviceCovoit, () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Support disponible bientôt'))
+                      );
                     }),
                   ],
                 ),
@@ -175,7 +179,7 @@ class _HomePassengerState extends State<HomePassenger> {
                   children: [
                     const Text('Courses récentes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     TextButton(
-                      onPressed: () => setState(() => _navIndex = 2),
+                      onPressed: () => setState(() => _navIndex = 1),
                       child: Text('Voir tout', style: TextStyle(color: AppColors.primary)),
                     ),
                   ],
@@ -219,6 +223,7 @@ class _HomePassengerState extends State<HomePassenger> {
           ),
         ),
       ),
+      // ✅ BARRE DE NAVIGATION SANS WALLET
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _navIndex,
         onTap: (i) => setState(() => _navIndex = i),
@@ -228,7 +233,6 @@ class _HomePassengerState extends State<HomePassenger> {
         showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: 'Wallet'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Historique'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],

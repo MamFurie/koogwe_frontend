@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:koogwz_mobile/Searching_driver_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ride_tracking_screen.dart';
+import 'searching_driver_screen.dart'; // ✅ AJOUTÉ
 import 'config.dart';
 
 class RidePreviewScreen extends StatefulWidget {
@@ -94,9 +96,16 @@ class _RidePreviewScreenState extends State<RidePreviewScreen> {
 
         print("✅ SUCCÈS TOTAL ! ID Course : $realRideId");
 
+        // ✅ MODIFIÉ : Redirection vers SearchingDriverScreen au lieu de RideTrackingScreen
         Navigator.pushReplacement(
           context, 
-          MaterialPageRoute(builder: (_) => RideTrackingScreen(rideId: realRideId))
+          MaterialPageRoute(
+            builder: (_) => SearchingDriverScreen(
+              rideId: realRideId,
+              destination: widget.destination,
+              price: widget.price,
+            ),
+          ),
         );
       } else {
         // ÉCHEC SERVEUR (400, 401, 500...)
