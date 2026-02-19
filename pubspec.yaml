@@ -40,7 +40,7 @@ flutter:
 
   # ✅ Assets - Logo de l'application
   assets:
-    - assets/icon/koogwe_logo.png
+    - assets/icon/logo.png
 
     
   # Fonts - Télécharge Poppins depuis Google Fonts et place dans assets/fonts/
